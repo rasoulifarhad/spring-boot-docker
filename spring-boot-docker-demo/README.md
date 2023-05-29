@@ -128,6 +128,47 @@ COPY ${EXTRACTED}/application/ ./
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher ${0} ${@}"]
 ```
 
+
+- Multi-Stage Build
+
+
+```sh
+$ docker build --build-arg WORK_DIR=${PWD} -t com-farhad-docker/greeting-app .
+$ docker run -p 8086:8086 com-farhad-docker/greeting-app  --server.port=8086
+$ curl -s -X GET localhost:8086/greeting?name=User -H 'Content-Type: application/json'; echo
+```
+
+`Dockerfile`
+
+```sh
+FROM eclipse-temurin:17-jdk-alpine as build
+ARG WORK_DIR
+WORKDIR ${WORK_DIR}
+
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+
+RUN ./mvnw install -DskipTests
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+
+FROM eclipse-temurin:17-jdk-alpine
+VOLUME /tmp
+ARG WORK_DIR
+ARG DEPENDENCY=${WORK_DIR}/target/dependency
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp app:app/lib/* com.farhad.example.dockerdemo.Application ${0} ${@}"]
+```
+
+go to image
+
+```sh
+$ docker run -ti --entrypoint /bin/sh com-farhad-docker/greeting-app
+```
+
 ### Test
 
 
