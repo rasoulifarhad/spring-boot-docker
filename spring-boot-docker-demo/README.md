@@ -99,8 +99,35 @@ COPY ${DEPENDENCY}/BOOT-INF/classes /app
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp app:app/lib/* com.farhad.example.dockerdemo.Application ${0} ${@}"]
 ```
 
+- Spring Boot Layer Index
+
+```sh
+$ ./mvnw clean package
+
+mkdir target/extracted
+java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
+
+
+$ docker build -t com-farhad-docker/greeting-app .
+$ docker run -p 8085:8085 com-farhad-docker/greeting-app  --server.port=8085
+$ curl -s -X GET localhost:8085/greeting?name=User -H 'Content-Type: application/json'; echo
+```
+
+`Dockerfile`
+
+```sh
+FROM eclipse-temurin:8u372-b07-jdk-alpine
+VOLUME /tmp
+ARG EXTRACTED=target/extracted
+COPY ${EXTRACTED}/dependencies/ ./
+COPY ${EXTRACTED}/spring-boot-loader/ ./
+COPY ${EXTRACTED}/snapshot-dependencies/ ./
+COPY ${EXTRACTED}/application/ ./
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher ${0} ${@}"]
+```
 
 ### Test
+
 
 ```sh
 $ curl -s -X GET localhost:8080/greeting?name=User -H 'Content-Type: application/json'; echo
