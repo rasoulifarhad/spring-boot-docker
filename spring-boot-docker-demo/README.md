@@ -232,7 +232,37 @@ $ docker run -p 8080:8080 -t com-farhad-docker/greeting-app
 
 - Build Plugins: Spotify Maven Plugin
 
+The [Spotify Maven Plugin](https://github.com/spotify/dockerfile-maven) is a popular choice. It requires you to write a Dockerfile and then runs docker for you, just as if you were doing it on the command line. There are some configuration options for the docker image tag and other stuff, but it keeps the docker knowledge in your application concentrated in a Dockerfile, which many people like.
 
+
+```sh
+$ ./mvnw com.spotify:dockerfile-maven-plugin:build
+```
+
+That builds an anonymous docker image. We can tag it with docker on the command line now or use Maven configuration to set it as the repository. The following example works without changing the pom.xml file:
+
+```sh
+$ ./mvnw com.spotify:dockerfile-maven-plugin:build -Ddockerfile.repository=com-farhad-docker/greeting-app
+```
+
+Alternatively, you change the pom.xml file:
+
+`pom.xml`
+
+```
+<build>
+    <plugins>
+        <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>dockerfile-maven-plugin</artifactId>
+            <version>1.4.8</version>
+            <configuration>
+                <repository>com-farhad-docker/${project.artifactId}</repository>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
 
 ### Test
 
