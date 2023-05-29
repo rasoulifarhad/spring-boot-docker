@@ -44,6 +44,24 @@ $ docker run -p 8082:8082 com-farhad-docker/greeting-app --server.port=8082
 $ curl -s -X GET localhost:8082/greeting?name=User -H 'Content-Type: application/json'; echo
 ```
 
+Note the use of ${0} for the “command” (in this case the first program argument) and ${@} for the “command arguments” (the rest of the program arguments). If you use a script for the entry point, then you do not need the ${0} (that would be /app/run.sh in the earlier example). The following list shows the proper command in a script file:
+
+`run.sh`
+
+```sh
+#!/bin/sh
+exec java ${JAVA_OPTS} -jar /app.jar ${@}
+```
+
+- command line arguments to the Spring Boot application in script mode
+
+```sh
+$ docker build -t com-farhad-docker/greeting-app .
+$ docker run -p 8083:8083 com-farhad-docker/greeting-app --server.port=8083
+$ curl -s -X GET localhost:8083/greeting?name=User -H 'Content-Type: application/json'; echo
+```
+
+
 ### Test
 
 ```sh
