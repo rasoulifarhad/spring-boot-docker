@@ -11,6 +11,8 @@ RUN ./mvnw install -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:17-jdk-alpine
+RUN addgroup -S demo && adduser -S demo -G demo
+USER demo
 VOLUME /tmp
 ARG WORK_DIR
 ARG DEPENDENCY=${WORK_DIR}/target/dependency
