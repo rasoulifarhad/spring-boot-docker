@@ -264,6 +264,33 @@ Alternatively, you change the pom.xml file:
 </build>
 ```
 
+
+- Jib Maven and Gradle Plugins
+
+Google has an open source tool called Jib that is relatively new but quite interesting for a number of reasons. Probably the most interesting thing is that you do not need docker to run it. Jib builds the image by using the same standard output as you get from docker build but does not use docker unless you ask it to, so it works in environments where docker is not installed (common in build servers). You also do not need a Dockerfile (it would be ignored anyway) or anything in your pom.xml to get an image built in Maven (Gradle would require you to at least install the plugin in build.gradle).
+
+Another interesting feature of Jib is that it is opinionated about layers, and it optimizes them in a slightly different way than the multi-layer Dockerfile created above. As in the fat JAR, Jib separates local application resources from dependencies, but it goes a step further and also puts snapshot dependencies into a separate layer, since they are more likely to change. There are configuration options for customizing the layout further.
+
+
+
+
+```sh
+$ ./mvnw com.google.cloud.tools:jib-maven-plugin:build -Dimage=com-farhad-docker/greeting-app
+```
+
+To run that command, you need to have permission to push to Dockerhub under the `com-farhad-docker` repository prefix. If you have authenticated with `docker` on the command line, that works from your local `~/.docker` configuration. You can also set up a Maven “server” authentication in your `~/.m2/settings.xml` (the id of the repository is significant):
+
+`settings.xml`
+
+```
+<server>
+    <id>registry.hub.docker.com</id>
+    <username>com-farhad-docker</username>
+    <password>...</password>
+</server>
+```
+
+
 ### Test
 
 
