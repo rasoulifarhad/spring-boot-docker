@@ -213,6 +213,26 @@ go to image
 $ docker run -ti --entrypoint /bin/sh com-farhad-docker/greeting-app
 ```
 
+- Build Plugins: Spring Boot Maven and Gradle Plugins
+
+```sh
+$ ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=com-farhad-docker/greeting-app
+```
+
+```sh
+$ ./gradlew bootBuildImage --imageName=myorg/myapp
+```
+
+Run image
+
+```sh
+$ docker run -p 8080:8080 -t com-farhad-docker/greeting-app
+```
+
+
+- Build Plugins: Spotify Maven Plugin
+
+
 
 ### Test
 
