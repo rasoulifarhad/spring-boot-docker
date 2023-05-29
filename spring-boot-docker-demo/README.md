@@ -61,6 +61,44 @@ $ docker run -p 8083:8083 com-farhad-docker/greeting-app --server.port=8083
 $ curl -s -X GET localhost:8083/greeting?name=User -H 'Content-Type: application/json'; echo
 ```
 
+`Dockerfile`
+
+```sh
+FROM eclipse-temurin:8u372-b07-jdk-alpine
+VOLUME /tmp
+COPY run.sh .
+COPY target/*.jar app.jar
+ENTRYPOINT ["./run.sh"]
+```
+
+- layered spring boot jar
+
+```sh
+$ ./mvnw clean package
+
+$ mkdir target/dependency
+$ cd target/dependency
+$ jar -xf ../*.jar
+$ cd -
+
+$ docker build -t com-farhad-docker/greeting-app .
+$ docker run -p 8084:8084 com-farhad-docker/greeting-app  --server.port=8084
+$ curl -s -X GET localhost:8084/greeting?name=User -H 'Content-Type: application/json'; echo
+```
+
+`Dockerfile`
+
+```sh
+FROM eclipse-temurin:8u372-b07-jdk-alpine
+VOLUME /tmp
+ARG DEPENDENCY=target/dependency
+ARG MAIN_APPLICATION_CLASS=com.farhad.example.dockerdemo.Application
+COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY ${DEPENDENCY}/META-INF /app/META-INF
+COPY ${DEPENDENCY}/BOOT-INF/classes /app
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp app:app/lib/* com.farhad.example.dockerdemo.Application ${0} ${@}"]
+```
+
 
 ### Test
 
